@@ -49,16 +49,6 @@ class MainActivity : ComponentActivity() {
             Log.d("onCreate", "onCreate: permission for UsageStats already granted")
         }
 
-//        btnStart.setOnClickListener{
-//            scheduleAppUsageWorker(it.context)
-//            Toast.makeText(this, "App Data collection started", Toast.LENGTH_SHORT).show()
-//        }
-//
-//        btnStop.setOnClickListener{
-//            WorkManager.getInstance(it.context).cancelAllWorkByTag("AppWorkerStop")
-//            Toast.makeText(this, "App data collection stopped", Toast.LENGTH_SHORT).show()
-//        }
-
         btnFetch.setOnClickListener{
             val workRequest = OneTimeWorkRequestBuilder<AppWorker>().build()
             Log.d("OneTimeRequest", "onCreate: one time request created")
@@ -76,12 +66,6 @@ class MainActivity : ComponentActivity() {
             context.packageName)
         return mode == AppOpsManager.MODE_ALLOWED
     }
-
-//    fun scheduleAppUsageWorker(context: Context) {
-//        val workRequest = PeriodicWorkRequestBuilder<AppWorker>(15, TimeUnit.MINUTES)
-//            .addTag("AppWorkerStop").build()
-//        WorkManager.getInstance(context).enqueue(workRequest)
-//    }
 
     fun copyCSVToDownloads(context: Context, fileName: String) {
         val contentResolver = context.contentResolver
@@ -115,23 +99,28 @@ class AppWorker(context: Context, workerParam:WorkerParameters): Worker(context,
         Log.d("doWork", "doWork: stats complete ${stats.isNotEmpty()}, ${stats.size}")
         if(stats.isNotEmpty()){
             val sortedStats = stats.sortedByDescending { it.lastTimeUsed }
-            for(currentApp in sortedStats.filter { isAllowedApp(it.packageName,applicationContext) }){
+            Log.d("doWork", "doWork: sorted stats size, ${stats.size}")
+            for(currentApp in sortedStats){
                 val appName = getAppNameFromPackageName(currentApp.packageName, applicationContext)
                 Log.d("doWork", "doWork: ${currentApp.packageName}, $appName")
+
+                isThirdPartyApp(applicationContext, currentApp.packageName,appName)
+
                 logAppUsage(applicationContext,currentApp.packageName, currentApp.lastTimeUsed, appName)
             }
         }
         return Result.success()
     }
 
-    fun isSystemApp(packageName: String, context: Context): Boolean {
+    fun isThirdPartyApp(context: Context, packageName: String, appName:String): Boolean {
         return try {
             val packageManager = context.packageManager
-            val appInfo = packageManager.getApplicationInfo(packageName, 0)
-            (appInfo.flags and ApplicationInfo.FLAG_SYSTEM) != 0 ||
-                    (appInfo.flags and ApplicationInfo.FLAG_UPDATED_SYSTEM_APP) != 0
+            val hasLaunchIntent = packageManager.getLaunchIntentForPackage(packageName) != null
+
+            Log.d("AppFlags", "Package: $packageName, *launchable: $hasLaunchIntent ,Name: $appName")
+            hasLaunchIntent
         } catch (e: PackageManager.NameNotFoundException) {
-            false // Treat unknown apps as non-system apps
+            false
         }
     }
 
@@ -139,10 +128,6 @@ class AppWorker(context: Context, workerParam:WorkerParameters): Worker(context,
         val packageManager = context.packageManager
         val intent = packageManager.getLaunchIntentForPackage(packageName)
         return intent != null
-    }
-
-    fun isAllowedApp(packageName: String, context: Context): Boolean {
-        return !isSystemApp(packageName, context) && isLaunchableApp(packageName, context)
     }
 
     fun getAppNameFromPackageName(packageName: String, context: Context): String {
@@ -188,7 +173,7 @@ class AppWorker(context: Context, workerParam:WorkerParameters): Worker(context,
     }
 
     fun formatTime(timestamp: Long): String {
-        val sdf = SimpleDateFormat("HH:mm:ss", Locale.getDefault())  // 24-hour format
+        val sdf = SimpleDateFormat("dd:MM:yyyy:HH:mm:ss", Locale.getDefault())  // 24-hour format
         val date = Date(timestamp)
         return sdf.format(date)
     }
