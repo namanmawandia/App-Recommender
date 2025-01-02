@@ -97,8 +97,8 @@ class AppWorker(context: Context, workerParam:WorkerParameters): Worker(context,
         if(stats.isNotEmpty()){
             val sortedStats = stats.sortedByDescending { it.lastTimeUsed }
             Log.d("doWork", "doWork: sorted stats size, ${stats.size}")
-            for(currentApp in sortedStats){
-                if(!isLaunchableApp(currentApp.packageName,applicationContext))
+            for(currentApp in sortedStats.filter { it.lastTimeUsed > 0 }){
+                if(!isLaunchableApp(currentApp.packageName,applicationContext) || !(currentApp.lastTimeUsed>0))
                     continue
                 val appName = getAppNameFromPackageName(currentApp.packageName, applicationContext)
                 Log.d("doWork", "doWork: ${currentApp.packageName}, $appName")
@@ -158,7 +158,8 @@ class AppWorker(context: Context, workerParam:WorkerParameters): Worker(context,
     }
 
     fun formatTime(timestamp: Long): String {
-        val sdf = SimpleDateFormat("dd:MM:yyyy:HH:mm:ss", Locale.getDefault())  // 24-hour format
+        val sdf = SimpleDateFormat("dd:MM:yyyy:HH:mm:ss", Locale.getDefault())
+            .apply { timeZone = TimeZone.getDefault() }
         val date = Date(timestamp)
         return sdf.format(date)
     }
