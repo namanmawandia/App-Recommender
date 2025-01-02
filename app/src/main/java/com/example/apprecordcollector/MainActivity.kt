@@ -4,14 +4,11 @@ import android.app.AppOpsManager
 import android.os.Bundle
 import android.widget.Button
 import androidx.activity.ComponentActivity
-import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
-import java.util.concurrent.TimeUnit
 import android.app.usage.UsageStatsManager
 import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
-import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.os.Environment
 import android.provider.MediaStore
@@ -101,27 +98,15 @@ class AppWorker(context: Context, workerParam:WorkerParameters): Worker(context,
             val sortedStats = stats.sortedByDescending { it.lastTimeUsed }
             Log.d("doWork", "doWork: sorted stats size, ${stats.size}")
             for(currentApp in sortedStats){
+                if(!isLaunchableApp(currentApp.packageName,applicationContext))
+                    continue
                 val appName = getAppNameFromPackageName(currentApp.packageName, applicationContext)
                 Log.d("doWork", "doWork: ${currentApp.packageName}, $appName")
-
-                isThirdPartyApp(applicationContext, currentApp.packageName,appName)
 
                 logAppUsage(applicationContext,currentApp.packageName, currentApp.lastTimeUsed, appName)
             }
         }
         return Result.success()
-    }
-
-    fun isThirdPartyApp(context: Context, packageName: String, appName:String): Boolean {
-        return try {
-            val packageManager = context.packageManager
-            val hasLaunchIntent = packageManager.getLaunchIntentForPackage(packageName) != null
-
-            Log.d("AppFlags", "Package: $packageName, *launchable: $hasLaunchIntent ,Name: $appName")
-            hasLaunchIntent
-        } catch (e: PackageManager.NameNotFoundException) {
-            false
-        }
     }
 
     fun isLaunchableApp(packageName: String, context: Context): Boolean {
@@ -145,7 +130,7 @@ class AppWorker(context: Context, workerParam:WorkerParameters): Worker(context,
 
         val file = File(context.filesDir, "app_usage_data.csv")
         Log.d("logAppUsage", "logAppUsage: file define complete")
-        
+
         if (!file.exists()) {
             try {
                 // Create the file and add headers
