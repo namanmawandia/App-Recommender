@@ -11,10 +11,12 @@ import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.drawable.Drawable
 import android.os.Environment
 import android.provider.MediaStore
 import android.provider.Settings
 import android.util.Log
+import android.widget.ImageView
 import android.widget.Toast
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.Worker
@@ -35,9 +37,11 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-//        val btnStart = findViewById<Button>(R.id.btnStart)
-//        val btnStop = findViewById<Button>(R.id.btnStop)
         val btnFetch = findViewById<Button>(R.id.btnFetch)
+        val ivApp1 = findViewById<ImageView>(R.id.ivApp1)
+        val ivApp2 = findViewById<ImageView>(R.id.ivApp2)
+        val ivApp3 = findViewById<ImageView>(R.id.ivApp3)
+
 
         if(!hasUsageStatsPermission(this)) {
             val intent = Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS)
@@ -57,17 +61,40 @@ class MainActivity : ComponentActivity() {
             WorkManager.getInstance(it.context).enqueue(workRequest)
             Log.d("OneTimeRequest", "onCreate: one time request done")
 
-            var cosineSimVal:MutableMap<String, Int>
+            var cosineSimVal:MutableMap<String, Int> = mutableMapOf()
             WorkManager.getInstance(it.context).getWorkInfoByIdLiveData(workRequest.id)
                 .observe(this) { workInfo ->
                 if (workInfo != null && workInfo.state.isFinished) {
-                    Log.d("OneTimeRequest", "WorkManager task completed")
                     cosineSimVal = findCosine()
-                    Log.d("OneTimeRequest", "Cosine similarity: $cosineSimVal")
+                    Log.d("OneTimeRequest", "Cosine similarity: ${cosineSimVal.isEmpty()}")
+                    cosineSimVal= sortAndSet(cosineSimVal, ivApp1,ivApp2, ivApp3)
                 }
             }
-
             copyCSVToDownloads(this,"app_usage_data.csv")
+        }
+    }
+
+    private fun sortAndSet(cosineSimVal: MutableMap<String, Int>,
+                           ivApp1: ImageView?,
+                           ivApp2: ImageView?,
+                           ivApp3: ImageView?): MutableMap<String, Int> {
+        val sortedList = cosineSimVal.toList().sortedByDescending { (_,value)-> value }
+        val sortedAppMap = sortedList.toMap().toMutableMap()
+        ivApp1?.setImageDrawable(getAppIcon(this,sortedList[0].first))
+        ivApp2?.setImageDrawable(getAppIcon(this,sortedList[1].first))
+        ivApp3?.setImageDrawable(getAppIcon(this,sortedList[2].first))
+
+        return sortedAppMap
+    }
+
+    fun getAppIcon(context: Context, packageName: String): Drawable? {
+        return try {
+            val packageManager = context.packageManager
+            val applicationInfo = packageManager.getApplicationInfo(packageName, 0)
+            packageManager.getApplicationIcon(applicationInfo)
+        } catch (e: PackageManager.NameNotFoundException) {
+            e.printStackTrace()
+            null
         }
     }
 
@@ -85,6 +112,8 @@ class MainActivity : ComponentActivity() {
                         (dotProd / (magA * magB)).toInt()
                     )
         }
+        Log.d("cosineSimilarity", "findCosine: $cosineSimVal")
+
         return cosineSimVal
     }
 
@@ -125,7 +154,7 @@ class AppWorker(context: Context, workerParam:WorkerParameters): Worker(context,
         val usm = applicationContext.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
         val time = System.currentTimeMillis()
         val stats = usm.queryUsageStats(UsageStatsManager.INTERVAL_DAILY,
-            time - 1000 * 60 * 60 * 24 * 7, time)
+            time - 1000 * 60 * 60 * 24 * 20, time)
         Log.d("doWork", "doWork: stats complete ${stats.isNotEmpty()}, ${stats.size}")
         if(stats.isNotEmpty()){
             val sortedStats = stats.sortedByDescending { it.lastTimeUsed }
