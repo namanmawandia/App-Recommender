@@ -69,7 +69,7 @@ class MainActivity : ComponentActivity() {
                     cosineSimVal= sortAndSet(cosineSimVal, ivApp1,ivApp2, ivApp3)
                 }
             }
-            copyCSVToDownloads(this,"app_usage_data.csv")
+//            copyCSVToDownloads(this,"app_usage_data.csv")
         }
     }
 
