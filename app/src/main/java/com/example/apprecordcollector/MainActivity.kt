@@ -1,7 +1,6 @@
 package com.example.apprecordcollector
 
 import android.app.AppOpsManager
-import android.app.usage.UsageStats
 import android.os.Bundle
 import android.widget.Button
 import androidx.activity.ComponentActivity
@@ -61,7 +60,7 @@ class MainActivity : ComponentActivity() {
             WorkManager.getInstance(it.context).enqueue(workRequest)
             Log.d("OneTimeRequest", "onCreate: one time request done")
 
-            var cosineSimVal:MutableMap<String, Int> = mutableMapOf()
+            var cosineSimVal:MutableMap<String, Int>
             WorkManager.getInstance(it.context).getWorkInfoByIdLiveData(workRequest.id)
                 .observe(this) { workInfo ->
                 if (workInfo != null && workInfo.state.isFinished) {
