@@ -15,6 +15,7 @@ import android.os.Environment
 import android.provider.MediaStore
 import android.provider.Settings
 import android.util.Log
+import android.view.View
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.work.OneTimeWorkRequestBuilder
@@ -41,6 +42,9 @@ class MainActivity : ComponentActivity() {
         val ivApp2 = findViewById<ImageView>(R.id.ivApp2)
         val ivApp3 = findViewById<ImageView>(R.id.ivApp3)
 
+        ivApp1.setVisibility(View.INVISIBLE)
+        ivApp2.setVisibility(View.INVISIBLE)
+        ivApp3.setVisibility(View.INVISIBLE)
 
         if(!hasUsageStatsPermission(this)) {
             val intent = Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS)
@@ -82,7 +86,9 @@ class MainActivity : ComponentActivity() {
         ivApp1?.setImageDrawable(getAppIcon(this,sortedList[0].first))
         ivApp2?.setImageDrawable(getAppIcon(this,sortedList[1].first))
         ivApp3?.setImageDrawable(getAppIcon(this,sortedList[2].first))
-
+        ivApp1?.setVisibility(View.VISIBLE)
+        ivApp2?.setVisibility(View.VISIBLE)
+        ivApp3?.setVisibility(View.VISIBLE)
         return sortedAppMap
     }
 
