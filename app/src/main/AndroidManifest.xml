@@ -15,8 +15,7 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/apprecomender_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.AppRecordCollector"
-        tools:targetApi="28">
+        android:theme="@style/Theme.AppRecordCollector">
         <activity
             android:name=".MainActivity"
             android:exported="true"
