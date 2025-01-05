@@ -1,6 +1,7 @@
 package com.example.apprecordcollector
 
 import android.app.AppOpsManager
+import android.app.usage.UsageStats
 import android.os.Bundle
 import android.widget.Button
 import androidx.activity.ComponentActivity
@@ -24,6 +25,10 @@ import java.io.FileOutputStream
 import java.io.OutputStreamWriter
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.math.sqrt
+
+val appTimeMap: MutableMap<String, MutableList<Int>> = mutableMapOf()
+var lastApp: String = ""
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -47,12 +52,40 @@ class MainActivity : ComponentActivity() {
         }
 
         btnFetch.setOnClickListener{
+            appTimeMap.clear()
             val workRequest = OneTimeWorkRequestBuilder<AppWorker>().build()
-            Log.d("OneTimeRequest", "onCreate: one time request created")
             WorkManager.getInstance(it.context).enqueue(workRequest)
             Log.d("OneTimeRequest", "onCreate: one time request done")
+
+            var cosineSimVal:MutableMap<String, Int>
+            WorkManager.getInstance(it.context).getWorkInfoByIdLiveData(workRequest.id)
+                .observe(this) { workInfo ->
+                if (workInfo != null && workInfo.state.isFinished) {
+                    Log.d("OneTimeRequest", "WorkManager task completed")
+                    cosineSimVal = findCosine()
+                    Log.d("OneTimeRequest", "Cosine similarity: $cosineSimVal")
+                }
+            }
+
             copyCSVToDownloads(this,"app_usage_data.csv")
         }
+    }
+
+    fun findCosine():MutableMap<String,Int>{
+        val cosineSimVal: MutableMap<String, Int> = mutableMapOf()
+        Log.d("cosineSimilarity", "findCosine: ${lastApp}")
+        val appA = appTimeMap[lastApp]
+        val magA = sqrt(appA?.sumOf { it * it }?.toDouble()?:0.0)
+        for((app,list) in appTimeMap){
+            val dotProd = appA?.zip(list)?.sumOf{(a,b) -> a*b} ?:0
+            val magB = sqrt(list.sumOf {it * it }.toDouble())
+            cosineSimVal[app]= (
+                    if (magA == 0.0 || magB == 0.0) 0
+                    else
+                        (dotProd / (magA * magB)).toInt()
+                    )
+        }
+        return cosineSimVal
     }
 
     fun hasUsageStatsPermission(context: Context): Boolean {
@@ -92,21 +125,42 @@ class AppWorker(context: Context, workerParam:WorkerParameters): Worker(context,
         val usm = applicationContext.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
         val time = System.currentTimeMillis()
         val stats = usm.queryUsageStats(UsageStatsManager.INTERVAL_DAILY,
-            time - 1000 * 60 * 60 * 24, time)
+            time - 1000 * 60 * 60 * 24 * 7, time)
         Log.d("doWork", "doWork: stats complete ${stats.isNotEmpty()}, ${stats.size}")
         if(stats.isNotEmpty()){
             val sortedStats = stats.sortedByDescending { it.lastTimeUsed }
-            Log.d("doWork", "doWork: sorted stats size, ${stats.size}")
             for(currentApp in sortedStats.filter { it.lastTimeUsed > 0 }){
                 if(!isLaunchableApp(currentApp.packageName,applicationContext) || !(currentApp.lastTimeUsed>0))
                     continue
+                if(appTimeMap.size==1) {
+                    lastApp = currentApp.packageName
+                    Log.d("doWork", "doWork: sorted stats size, ${lastApp}")
+                }
                 val appName = getAppNameFromPackageName(currentApp.packageName, applicationContext)
                 Log.d("doWork", "doWork: ${currentApp.packageName}, $appName")
 
+                cosineSimilarityInitilization(currentApp.packageName, currentApp.lastTimeUsed)
+                Log.d("cosineSimilarity", "doWork: ${currentApp.packageName}  ${appTimeMap[currentApp.packageName]}")
                 logAppUsage(applicationContext,currentApp.packageName, currentApp.lastTimeUsed, appName)
             }
         }
         return Result.success()
+    }
+
+    fun cosineSimilarityInitilization(packageName: String, lastUsed: Long){
+        val formatedTime = formatTime(lastUsed)
+        val hour = formatedTime.substring(11, 13).toInt()
+        appTimeMap[packageName]?.let { timelist ->
+            if(hour in timelist.indices) {
+                timelist[hour] += 1
+            }
+            else
+                Log.d("cosineSimilarity", "cosineSimilarityInitilization: Invalid Index $hour")
+        }?:run {
+            val list = MutableList(24){0}
+            list[hour] += 1
+            appTimeMap[packageName] = list
+        }
     }
 
     fun isLaunchableApp(packageName: String, context: Context): Boolean {
