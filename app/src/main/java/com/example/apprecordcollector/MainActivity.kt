@@ -60,15 +60,19 @@ class MainActivity : ComponentActivity() {
 
         btnFetch.setOnClickListener{
             appTimeMap.clear()
+            ivApp1.setVisibility(View.INVISIBLE)
+            ivApp2.setVisibility(View.INVISIBLE)
+            ivApp3.setVisibility(View.INVISIBLE)
             val workRequest = OneTimeWorkRequestBuilder<AppWorker>().build()
             WorkManager.getInstance(it.context).enqueue(workRequest)
             Log.d("OneTimeRequest", "onCreate: one time request done")
 
-            var cosineSimVal:MutableMap<String, Int>
+            var cosineSimVal:MutableMap<String, Double>
             WorkManager.getInstance(it.context).getWorkInfoByIdLiveData(workRequest.id)
                 .observe(this) { workInfo ->
                 if (workInfo != null && workInfo.state.isFinished) {
                     cosineSimVal = findCosine()
+                    cosineSimVal.remove(lastApp)
                     Log.d("OneTimeRequest", "Cosine similarity: ${cosineSimVal.isEmpty()}")
                     cosineSimVal= sortAndSet(cosineSimVal, ivApp1,ivApp2, ivApp3)
                 }
@@ -77,12 +81,13 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    private fun sortAndSet(cosineSimVal: MutableMap<String, Int>,
+    private fun sortAndSet(cosineSimVal: MutableMap<String, Double>,
                            ivApp1: ImageView?,
                            ivApp2: ImageView?,
-                           ivApp3: ImageView?): MutableMap<String, Int> {
+                           ivApp3: ImageView?): MutableMap<String, Double> {
         val sortedList = cosineSimVal.toList().sortedByDescending { (_,value)-> value }
         val sortedAppMap = sortedList.toMap().toMutableMap()
+        Log.d("Sort and Set", "sortAndSet: $sortedList")
         ivApp1?.setImageDrawable(getAppIcon(this,sortedList[0].first))
         ivApp2?.setImageDrawable(getAppIcon(this,sortedList[1].first))
         ivApp3?.setImageDrawable(getAppIcon(this,sortedList[2].first))
@@ -103,18 +108,18 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    fun findCosine():MutableMap<String,Int>{
-        val cosineSimVal: MutableMap<String, Int> = mutableMapOf()
-        Log.d("cosineSimilarity", "findCosine: ${lastApp}")
+    fun findCosine():MutableMap<String,Double>{
+        val cosineSimVal: MutableMap<String, Double> = mutableMapOf()
+        Log.d("cosineSimilarity", "findCosine: ${lastApp}  ${appTimeMap[lastApp]}")
         val appA = appTimeMap[lastApp]
         val magA = sqrt(appA?.sumOf { it * it }?.toDouble()?:0.0)
         for((app,list) in appTimeMap){
-            val dotProd = appA?.zip(list)?.sumOf{(a,b) -> a*b} ?:0
+            val dotProd = appA?.zip(list)?.sumOf{(a,b) -> a*b*1.0} ?:0.0
             val magB = sqrt(list.sumOf {it * it }.toDouble())
             cosineSimVal[app]= (
-                    if (magA == 0.0 || magB == 0.0) 0
+                    if (magA == 0.0 || magB == 0.0) 0.0
                     else
-                        (dotProd / (magA * magB)).toInt()
+                        ((dotProd*1.0) / (magA * magB))
                     )
         }
         Log.d("cosineSimilarity", "findCosine: $cosineSimVal")
@@ -159,12 +164,14 @@ class AppWorker(context: Context, workerParam:WorkerParameters): Worker(context,
         val usm = applicationContext.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
         val time = System.currentTimeMillis()
         val stats = usm.queryUsageStats(UsageStatsManager.INTERVAL_DAILY,
-            time - 1000 * 60 * 60 * 24 * 20, time)
+            time - 1000 * 60 * 60 * 24 * 15, time)
         Log.d("doWork", "doWork: stats complete ${stats.isNotEmpty()}, ${stats.size}")
         if(stats.isNotEmpty()){
             val sortedStats = stats.sortedByDescending { it.lastTimeUsed }
             for(currentApp in sortedStats.filter { it.lastTimeUsed > 0 }){
-                if(!isLaunchableApp(currentApp.packageName,applicationContext) || !(currentApp.lastTimeUsed>0))
+                if(!isLaunchableApp(currentApp.packageName,applicationContext)
+                    || !(currentApp.lastTimeUsed>0)
+                    || (currentApp.packageName ==applicationContext.packageName))
                     continue
                 if(appTimeMap.size==1) {
                     lastApp = currentApp.packageName
@@ -175,7 +182,8 @@ class AppWorker(context: Context, workerParam:WorkerParameters): Worker(context,
 
                 cosineSimilarityInitilization(currentApp.packageName, currentApp.lastTimeUsed)
                 Log.d("cosineSimilarity", "doWork: ${currentApp.packageName}  ${appTimeMap[currentApp.packageName]}")
-                logAppUsage(applicationContext,currentApp.packageName, currentApp.lastTimeUsed, appName)
+
+//                logAppUsage(applicationContext,currentApp.packageName, currentApp.lastTimeUsed, appName)
             }
         }
         return Result.success()
