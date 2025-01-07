@@ -30,7 +30,7 @@ import java.util.*
 import kotlin.math.sqrt
 
 val appTimeMap: MutableMap<String, MutableList<Int>> = mutableMapOf()
-var lastApp: String = ""
+var lastApp: MutableList<String> = mutableListOf()
 var cosineSimVal:MutableMap<String, Double> = mutableMapOf()
 
 class MainActivity : ComponentActivity() {
@@ -72,12 +72,12 @@ class MainActivity : ComponentActivity() {
                 .observe(this) { workInfo ->
                 if (workInfo != null && workInfo.state.isFinished) {
                     cosineSimVal = findCosine()
-                    cosineSimVal.remove(lastApp)
+                    cosineSimVal.remove(lastApp[0])
                     Log.d("OneTimeRequest", "Cosine similarity: ${cosineSimVal.isEmpty()}")
                     cosineSimVal= sortAndSet(cosineSimVal, ivApp1,ivApp2, ivApp3)
                 }
             }
-//            copyCSVToDownloads(this,"app_usage_data.csv")
+            copyCSVToDownloads(this,"app_usage_data.csv")
         }
         ivApp1.setOnClickListener{
             val intent = packageManager.getLaunchIntentForPackage(
@@ -133,19 +133,20 @@ class MainActivity : ComponentActivity() {
     }
 
     fun findCosine():MutableMap<String,Double>{
-        val cosineSimVal: MutableMap<String, Double> = mutableMapOf()
-        Log.d("cosineSimilarity", "findCosine: ${lastApp}  ${appTimeMap[lastApp]}")
-        val appA = appTimeMap[lastApp]
-        val magA = sqrt(appA?.sumOf { it * it }?.toDouble()?:0.0)
-        for((app,list) in appTimeMap){
-            val dotProd = appA?.zip(list)?.sumOf{(a,b) -> a*b*1.0} ?:0.0
-            val magB = sqrt(list.sumOf {it * it }.toDouble())
-            cosineSimVal[app]= (
-                    if (magA == 0.0 || magB == 0.0) 0.0
-                    else
-                        ((dotProd*1.0) / (magA * magB))
-                    )
+        val cosineSimVal: MutableMap<String, Double> = mutableMapOf<String, Double>().withDefault { 0.0}
+        Log.d("cosineSimilarity", "findCosine: ${lastApp}")
+        for(lapp in lastApp) {
+            val appA = appTimeMap[lapp]
+            val magA = sqrt(appA?.sumOf { it * it }?.toDouble() ?: 0.0)
+            for ((app, list) in appTimeMap) {
+                val dotProd = appA?.zip(list)?.sumOf { (a, b) -> a * b * 1.0 } ?: 0.0
+                val magB = sqrt(list.sumOf { it * it }.toDouble())
+                cosineSimVal[app] = cosineSimVal.getValue(app) +
+                    (if (magA == 0.0 || magB == 0.0) 0.0
+                else (dotProd * 1.0) / (magA * magB))
+            }
         }
+        cosineSimVal.forEach{(key,value)-> cosineSimVal[key] = value/3.0}
         Log.d("cosineSimilarity", "findCosine: $cosineSimVal")
 
         return cosineSimVal
@@ -188,7 +189,7 @@ class AppWorker(context: Context, workerParam:WorkerParameters): Worker(context,
         val usm = applicationContext.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
         val time = System.currentTimeMillis()
         val stats = usm.queryUsageStats(UsageStatsManager.INTERVAL_DAILY,
-            time - 1000 * 60 * 60 * 24 * 15, time)
+            time - 1000 * 60 * 60 * 24 * 10, time)
         Log.d("doWork", "doWork: stats complete ${stats.isNotEmpty()}, ${stats.size}")
         if(stats.isNotEmpty()){
             val sortedStats = stats.sortedByDescending { it.lastTimeUsed }
@@ -197,8 +198,8 @@ class AppWorker(context: Context, workerParam:WorkerParameters): Worker(context,
                     || !(currentApp.lastTimeUsed>0)
                     || (currentApp.packageName ==applicationContext.packageName))
                     continue
-                if(appTimeMap.size==1) {
-                    lastApp = currentApp.packageName
+                if(appTimeMap.size>=1 && appTimeMap.size<=3) {
+                    lastApp.add(currentApp.packageName)
                     Log.d("doWork", "doWork: sorted stats size, ${lastApp}")
                 }
                 val appName = getAppNameFromPackageName(currentApp.packageName, applicationContext)
@@ -207,7 +208,7 @@ class AppWorker(context: Context, workerParam:WorkerParameters): Worker(context,
                 cosineSimilarityInitilization(currentApp.packageName, currentApp.lastTimeUsed)
                 Log.d("cosineSimilarity", "doWork: ${currentApp.packageName}  ${appTimeMap[currentApp.packageName]}")
 
-//                logAppUsage(applicationContext,currentApp.packageName, currentApp.lastTimeUsed, appName)
+                logAppUsage(applicationContext,currentApp.packageName, currentApp.lastTimeUsed, appName)
             }
         }
         return Result.success()
