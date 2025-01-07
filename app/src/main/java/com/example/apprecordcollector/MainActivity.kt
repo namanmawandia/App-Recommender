@@ -31,6 +31,7 @@ import kotlin.math.sqrt
 
 val appTimeMap: MutableMap<String, MutableList<Int>> = mutableMapOf()
 var lastApp: String = ""
+var cosineSimVal:MutableMap<String, Double> = mutableMapOf()
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -42,9 +43,9 @@ class MainActivity : ComponentActivity() {
         val ivApp2 = findViewById<ImageView>(R.id.ivApp2)
         val ivApp3 = findViewById<ImageView>(R.id.ivApp3)
 
-        ivApp1.setVisibility(View.INVISIBLE)
-        ivApp2.setVisibility(View.INVISIBLE)
-        ivApp3.setVisibility(View.INVISIBLE)
+        ivApp1.setVisibility(View.GONE)
+        ivApp2.setVisibility(View.GONE)
+        ivApp3.setVisibility(View.GONE)
 
         if(!hasUsageStatsPermission(this)) {
             val intent = Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS)
@@ -67,7 +68,6 @@ class MainActivity : ComponentActivity() {
             WorkManager.getInstance(it.context).enqueue(workRequest)
             Log.d("OneTimeRequest", "onCreate: one time request done")
 
-            var cosineSimVal:MutableMap<String, Double>
             WorkManager.getInstance(it.context).getWorkInfoByIdLiveData(workRequest.id)
                 .observe(this) { workInfo ->
                 if (workInfo != null && workInfo.state.isFinished) {
@@ -78,6 +78,30 @@ class MainActivity : ComponentActivity() {
                 }
             }
 //            copyCSVToDownloads(this,"app_usage_data.csv")
+        }
+        ivApp1.setOnClickListener{
+            val intent = packageManager.getLaunchIntentForPackage(
+                cosineSimVal.entries.elementAt(0).key)
+            if(intent != null)
+                startActivity(intent)
+            else
+                Toast.makeText(this, "App not found", Toast.LENGTH_SHORT).show()
+        }
+        ivApp2.setOnClickListener{
+            val intent = packageManager.getLaunchIntentForPackage(
+                cosineSimVal.entries.elementAt(1).key)
+            if(intent != null)
+                startActivity(intent)
+            else
+                Toast.makeText(this, "App not found", Toast.LENGTH_SHORT).show()
+        }
+        ivApp3.setOnClickListener{
+            val intent = packageManager.getLaunchIntentForPackage(
+                cosineSimVal.entries.elementAt(2).key)
+            if(intent != null)
+                startActivity(intent)
+            else
+                Toast.makeText(this, "App not found", Toast.LENGTH_SHORT).show()
         }
     }
 
