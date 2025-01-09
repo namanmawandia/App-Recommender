@@ -26,6 +26,7 @@ import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.io.OutputStreamWriter
 import java.text.SimpleDateFormat
+import java.time.LocalTime
 import java.util.*
 import kotlin.math.sqrt
 
@@ -77,7 +78,7 @@ class MainActivity : ComponentActivity() {
                     cosineSimVal= sortAndSet(cosineSimVal, ivApp1,ivApp2, ivApp3)
                 }
             }
-            copyCSVToDownloads(this,"app_usage_data.csv")
+//            copyCSVToDownloads(this,"app_usage_data.csv")
         }
         ivApp1.setOnClickListener{
             val intent = packageManager.getLaunchIntentForPackage(
@@ -133,13 +134,15 @@ class MainActivity : ComponentActivity() {
     }
 
     fun findCosine():MutableMap<String,Double>{
-        val cosineSimVal: MutableMap<String, Double> = mutableMapOf<String, Double>().withDefault { 0.0}
+        val cosineSimVal: MutableMap<String, Double> = mutableMapOf<String, Double>().withDefault {0.0}
         Log.d("cosineSimilarity", "findCosine: ${lastApp}")
         for(lapp in lastApp) {
             val appA = appTimeMap[lapp]
-            val magA = sqrt(appA?.sumOf { it * it }?.toDouble() ?: 0.0)
+            val time = LocalTime.now().hour
+            appA!![time] = appA[time]*(3-lastApp.indexOf(lapp))
+            val magA = sqrt(appA.sumOf { it * it }.toDouble())
             for ((app, list) in appTimeMap) {
-                val dotProd = appA?.zip(list)?.sumOf { (a, b) -> a * b * 1.0 } ?: 0.0
+                val dotProd = appA.zip(list).sumOf { (a, b) -> a * b * 1.0 }
                 val magB = sqrt(list.sumOf { it * it }.toDouble())
                 cosineSimVal[app] = cosineSimVal.getValue(app) +
                     (if (magA == 0.0 || magB == 0.0) 0.0
@@ -208,7 +211,7 @@ class AppWorker(context: Context, workerParam:WorkerParameters): Worker(context,
                 cosineSimilarityInitilization(currentApp.packageName, currentApp.lastTimeUsed)
                 Log.d("cosineSimilarity", "doWork: ${currentApp.packageName}  ${appTimeMap[currentApp.packageName]}")
 
-                logAppUsage(applicationContext,currentApp.packageName, currentApp.lastTimeUsed, appName)
+//                logAppUsage(applicationContext,currentApp.packageName, currentApp.lastTimeUsed, appName)
             }
         }
         return Result.success()
