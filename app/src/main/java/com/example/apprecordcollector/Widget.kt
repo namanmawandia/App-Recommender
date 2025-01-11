@@ -3,11 +3,16 @@ package com.example.apprecordcollector
 import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.widget.RemoteViews
+import androidx.core.content.ContextCompat.registerReceiver
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
+import com.example.apprecordcollector.lastApp
+import com.example.apprecordcollector.appTimeMap
 
 class Widget: AppWidgetProvider() {
     override fun onUpdate(
@@ -19,6 +24,19 @@ class Widget: AppWidgetProvider() {
 
         val worker =  OneTimeWorkRequestBuilder<AppWorker>().build()
         WorkManager.getInstance(context).enqueue(worker)
+
+        val receiver = object : BroadcastReceiver(){
+            override fun onReceive(context: Context, intent: Intent) {
+                if(intent.action == "com.AppRecordCollector.Worker_Complete")
+                {
+                    // use lastApp and appTimeMap
+                }
+            }
+        }
+
+        val filter = IntentFilter("com.AppRecordCollector.Worker_Complete")
+//        context.registerReceiver( filter,receiver)
+
 
         for(appWidgetId in appWidgetIds)
         {
@@ -35,6 +53,7 @@ class Widget: AppWidgetProvider() {
             val ivApp1 = R.id.ivApp1
             val ivApp2 = R.id.ivApp2
             val ivApp3 = R.id.ivApp3
+
 
 
 

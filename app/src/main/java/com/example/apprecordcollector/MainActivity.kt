@@ -211,6 +211,8 @@ class AppWorker(context: Context, workerParam:WorkerParameters): Worker(context,
                 cosineSimilarityInitilization(currentApp.packageName, currentApp.lastTimeUsed)
                 Log.d("cosineSimilarity", "doWork: ${currentApp.packageName}  ${appTimeMap[currentApp.packageName]}")
 
+                broadcastSend(applicationContext)
+
 //                logAppUsage(applicationContext,currentApp.packageName, currentApp.lastTimeUsed, appName)
             }
         }
@@ -286,6 +288,12 @@ class AppWorker(context: Context, workerParam:WorkerParameters): Worker(context,
             .apply { timeZone = TimeZone.getDefault() }
         val date = Date(timestamp)
         return sdf.format(date)
+    }
+
+    fun broadcastSend(context:Context)
+    {
+        val intent = Intent("com.AppRecordCollector.Worker_Complete")
+        context.sendBroadcast(intent)
     }
 }
 
