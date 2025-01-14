@@ -5,18 +5,24 @@ import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
 import android.content.BroadcastReceiver
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.drawable.BitmapDrawable
+import android.graphics.drawable.Drawable
 import android.util.Log
 import android.widget.RemoteViews
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
+import com.example.apprecordcollector.Widget.Companion.updateAppWidget
 import java.time.LocalTime
 import kotlin.math.sqrt
+
+var sortedList : List<Pair<String,Double>> = listOf()
 
 class Widget: AppWidgetProvider() {
     @SuppressLint("InlinedApi")
@@ -27,31 +33,13 @@ class Widget: AppWidgetProvider() {
     ) {
         super.onUpdate(context, appWidgetManager, appWidgetIds)
 
+        lastApp.clear()
+        cosineSimVal.clear()
+        appTimeMap.clear()
+
         val worker =  OneTimeWorkRequestBuilder<AppWorker>().build()
         WorkManager.getInstance(context).enqueue(worker)
 
-        var sortedList : List<Pair<String,Double>> = listOf()
-        val receiver = object : BroadcastReceiver(){
-            override fun onReceive(context: Context, intent: Intent) {
-                if(intent.action == "com.AppRecordCollector.Worker_Complete")
-                {
-                    cosineSimVal = findCosine()
-                    cosineSimVal.remove(lastApp[0])
-                    Log.d("OneTimeRequest", "Cosine similarity: ${cosineSimVal.isEmpty()}")
-                    sortedList = cosineSimVal.toList().sortedByDescending { (_,value)-> value }
-                    cosineSimVal = sortedList.toMap().toMutableMap()
-                }
-            }
-        }
-
-        val filter = IntentFilter("com.AppRecordCollector.Worker_Complete")
-        context.registerReceiver(receiver, filter, Context.RECEIVER_NOT_EXPORTED)
-
-
-        for(appWidgetId in appWidgetIds)
-        {
-            updateAppWidget(context,appWidgetManager,appWidgetId, sortedList)
-        }
     }
     companion object{
         fun updateAppWidget(
@@ -65,18 +53,20 @@ class Widget: AppWidgetProvider() {
             val ivApp2 = R.id.ivApp2
             val ivApp3 = R.id.ivApp3
 
+            Log.d("onUpdate", "updateAppWidget: Before assigning values $sortedList")
             views.setImageViewBitmap(ivApp1,getAppIcon(context,sortedList[0].first))
             views.setImageViewBitmap(ivApp2,getAppIcon(context,sortedList[1].first))
             views.setImageViewBitmap(ivApp3,getAppIcon(context,sortedList[2].first))
-
 
             val intent = Intent(context, Widget::class.java)
             intent.action = AppWidgetManager.ACTION_APPWIDGET_UPDATE
             val pendingIntent = PendingIntent.getBroadcast(context, 0,intent,
                 PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
-            views
+            views.setOnClickPendingIntent(R.id.ivApp3,pendingIntent)
+            appWidgetManager.updateAppWidget(appWidgetId,views)
 
         }
+
 
         fun getAppIcon(context: Context, packageName: String): Bitmap {
             val packageManager = context.packageManager
@@ -98,9 +88,32 @@ class Widget: AppWidgetProvider() {
         }
     }
 
+}
+
+class mainActivityBroadcastReceiver: BroadcastReceiver() {
+    override fun onReceive(context: Context, intent: Intent) {
+        if (intent.action == "com.AppRecordCollector.Worker_Complete") {
+
+            val appWidgetManager = AppWidgetManager.getInstance(context)
+            val componentName =  ComponentName(context, Widget:: class.java)
+            val appWidgetIds = appWidgetManager.getAppWidgetIds(componentName)
+
+            Log.d("onUpdate", "onReceive: $lastApp")
+            cosineSimVal = findCosine()
+            cosineSimVal.remove(lastApp[0])
+            sortedList = cosineSimVal.toList().sortedByDescending { (_, value) -> value }
+            Log.d("onUpdate", "Sorted List: $sortedList")
+            cosineSimVal = sortedList.toMap().toMutableMap()
+
+            for (appWidgetId in appWidgetIds) {
+                updateAppWidget(context, appWidgetManager, appWidgetId, sortedList)
+            }
+        }
+    }
+
     fun findCosine():MutableMap<String,Double>{
         val cosineSimVal: MutableMap<String, Double> = mutableMapOf<String, Double>().withDefault {0.0}
-        Log.d("cosineSimilarity", "findCosine: ${lastApp}")
+        Log.d("cosineSimilarityWidget", "findCosine: ${lastApp}")
         for(lapp in lastApp) {
             val appA = appTimeMap[lapp]
             val time = LocalTime.now().hour
@@ -115,7 +128,7 @@ class Widget: AppWidgetProvider() {
             }
         }
         cosineSimVal.forEach{(key,value)-> cosineSimVal[key] = value/3.0}
-        Log.d("cosineSimilarity", "findCosine: $cosineSimVal")
+        Log.d("cosineSimilarityWidget", "findCosine: $cosineSimVal")
 
         return cosineSimVal
     }

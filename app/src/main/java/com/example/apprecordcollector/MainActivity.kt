@@ -211,11 +211,10 @@ class AppWorker(context: Context, workerParam:WorkerParameters): Worker(context,
                 cosineSimilarityInitilization(currentApp.packageName, currentApp.lastTimeUsed)
                 Log.d("cosineSimilarity", "doWork: ${currentApp.packageName}  ${appTimeMap[currentApp.packageName]}")
 
-                broadcastSend(applicationContext)
-
 //                logAppUsage(applicationContext,currentApp.packageName, currentApp.lastTimeUsed, appName)
             }
         }
+        broadcastSend(applicationContext)
         return Result.success()
     }
 
@@ -293,7 +292,9 @@ class AppWorker(context: Context, workerParam:WorkerParameters): Worker(context,
     fun broadcastSend(context:Context)
     {
         val intent = Intent("com.AppRecordCollector.Worker_Complete")
+        intent.setPackage(context.packageName)
         context.sendBroadcast(intent)
+        Log.d("onUpdate", "broadcastSend: Broadcast sent")
     }
 }
 
