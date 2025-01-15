@@ -26,6 +26,31 @@ var sortedList : List<Pair<String,Double>> = listOf()
 
 class Widget: AppWidgetProvider() {
     @SuppressLint("InlinedApi")
+
+    private val sharedPrefName = "widget_pref"
+    private val sharedPrefKey = "widget_created"
+
+    override fun onEnabled(context: Context) {
+        super.onEnabled(context)
+
+        val prefs = context.getSharedPreferences(sharedPrefName,Context.MODE_PRIVATE)
+        val widgetCreated = prefs.getBoolean(sharedPrefKey,false)
+        if(!widgetCreated){
+            prefs.edit().putBoolean(sharedPrefKey,true).apply()
+            Log.d("onEnabled", "onEnabled: Widget Created")
+        }else{
+            Log.d("onEnabled", "onEnabled: Only one widget allowed")
+        }
+    }
+
+    override fun onDisabled(context: Context) {
+        super.onDisabled(context)
+
+        val prefs = context.getSharedPreferences(sharedPrefName,Context.MODE_PRIVATE)
+        prefs.edit().putBoolean(sharedPrefKey,false).apply()
+        Log.d("onDisabled", "onDisabled: Widget removed, flag reset")
+    }
+
     override fun onUpdate(
         context: Context,
         appWidgetManager: AppWidgetManager,
@@ -36,6 +61,8 @@ class Widget: AppWidgetProvider() {
         lastApp.clear()
         cosineSimVal.clear()
         appTimeMap.clear()
+
+        Log.d("onUpdate", "onUpdate: inside onUpdate")
 
         val worker =  OneTimeWorkRequestBuilder<AppWorker>().build()
         WorkManager.getInstance(context).enqueue(worker)
