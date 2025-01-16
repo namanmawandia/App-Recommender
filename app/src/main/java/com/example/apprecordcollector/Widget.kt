@@ -16,6 +16,7 @@ import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.util.Log
 import android.widget.RemoteViews
+import android.widget.Toast
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import com.example.apprecordcollector.Widget.Companion.updateAppWidget
@@ -30,19 +31,6 @@ class Widget: AppWidgetProvider() {
     private val sharedPrefName = "widget_pref"
     private val sharedPrefKey = "widget_created"
 
-    override fun onEnabled(context: Context) {
-        super.onEnabled(context)
-
-        val prefs = context.getSharedPreferences(sharedPrefName,Context.MODE_PRIVATE)
-        val widgetCreated = prefs.getBoolean(sharedPrefKey,false)
-        if(!widgetCreated){
-            prefs.edit().putBoolean(sharedPrefKey,true).apply()
-            Log.d("onEnabled", "onEnabled: Widget Created")
-        }else{
-            Log.d("onEnabled", "onEnabled: Only one widget allowed")
-        }
-    }
-
     override fun onDisabled(context: Context) {
         super.onDisabled(context)
 
@@ -51,12 +39,32 @@ class Widget: AppWidgetProvider() {
         Log.d("onDisabled", "onDisabled: Widget removed, flag reset")
     }
 
+    override fun onReceive(context: Context, intent: Intent) {
+        super.onReceive(context, intent)
+
+        val prefs = context.getSharedPreferences(sharedPrefName,Context.MODE_PRIVATE)
+        val widgetCreated = prefs.getBoolean(sharedPrefKey,false)
+
+        if(widgetCreated && intent.action == AppWidgetManager.ACTION_APPWIDGET_UPDATE){
+            Toast.makeText(context, "Only one widget allowed for this app", Toast.LENGTH_SHORT).show()
+            return
+        }
+        
+    }
+
     override fun onUpdate(
         context: Context,
         appWidgetManager: AppWidgetManager,
         appWidgetIds: IntArray
     ) {
         super.onUpdate(context, appWidgetManager, appWidgetIds)
+
+        val prefs = context.getSharedPreferences(sharedPrefName,Context.MODE_PRIVATE)
+        val widgetCreated = prefs.getBoolean(sharedPrefKey,false)
+        if(widgetCreated){
+            return
+        }
+        prefs.edit().putBoolean(sharedPrefKey,true).apply()
 
         lastApp.clear()
         cosineSimVal.clear()
@@ -85,12 +93,28 @@ class Widget: AppWidgetProvider() {
             views.setImageViewBitmap(ivApp2,getAppIcon(context,sortedList[1].first))
             views.setImageViewBitmap(ivApp3,getAppIcon(context,sortedList[2].first))
 
-            val intent = Intent(context, Widget::class.java)
-            intent.action = AppWidgetManager.ACTION_APPWIDGET_UPDATE
-            val pendingIntent = PendingIntent.getBroadcast(context, 0,intent,
-                PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
-            views.setOnClickPendingIntent(R.id.ivApp3,pendingIntent)
+            setAppLaunchOnClick(context,views, ivApp1, cosineSimVal.entries.elementAt(0).key)
+            setAppLaunchOnClick(context,views, ivApp1, cosineSimVal.entries.elementAt(1).key)
+            setAppLaunchOnClick(context,views, ivApp1, cosineSimVal.entries.elementAt(2).key)
+
             appWidgetManager.updateAppWidget(appWidgetId,views)
+
+        }
+
+        private fun setAppLaunchOnClick(
+            context: Context,
+            views: RemoteViews,
+            viewId: Int,
+            packageName: String
+        ) {
+            val packageManager = context.packageManager
+            val launchIntent = packageManager.getLaunchIntentForPackage(packageName)
+
+            Log.d("onUpdate", "setAppLaunchOnClick: launchIntent $launchIntent")
+            val pendingIntent = PendingIntent.getActivity(context,packageManager.hashCode(),
+                launchIntent,PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+            views.setOnClickPendingIntent(viewId,pendingIntent)
+            Log.d("onUpdate", "setAppLaunchOnClick: Clickable set")
 
         }
 

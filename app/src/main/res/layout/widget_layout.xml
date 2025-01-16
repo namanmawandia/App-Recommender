@@ -16,21 +16,18 @@
             android:layout_width="60sp"
             android:layout_height="60sp"
             android:layout_margin="10sp"
-            android:clickable="true"
             android:background="@mipmap/ic_launcher_round"/>
         <ImageView
             android:id="@+id/ivApp2"
             android:layout_width="60sp"
             android:layout_height="60sp"
             android:layout_margin="10sp"
-            android:clickable="true"
             android:background="@mipmap/ic_launcher_round"/>
         <ImageView
             android:id="@+id/ivApp3"
             android:layout_width="60sp"
             android:layout_height="60sp"
             android:layout_margin="10sp"
-            android:clickable="true"
             android:background="@mipmap/ic_launcher_round"/>
 
     </LinearLayout>
