@@ -1,36 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
+    android:orientation="horizontal"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:layout_margin="10sp"
+    android:gravity="center">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
+    <ImageView
+        android:id="@+id/ivApp1"
+        android:layout_width="60sp"
+        android:layout_height="60sp"
         android:layout_margin="10sp"
-        android:gravity="center"
-        android:backgroundTint="@color/black">
-        <ImageView
-            android:id="@+id/ivApp1"
-            android:layout_width="60sp"
-            android:layout_height="60sp"
-            android:layout_margin="10sp"
-            android:background="@mipmap/ic_launcher_round"/>
-        <ImageView
-            android:id="@+id/ivApp2"
-            android:layout_width="60sp"
-            android:layout_height="60sp"
-            android:layout_margin="10sp"
-            android:background="@mipmap/ic_launcher_round"/>
-        <ImageView
-            android:id="@+id/ivApp3"
-            android:layout_width="60sp"
-            android:layout_height="60sp"
-            android:layout_margin="10sp"
-            android:background="@mipmap/ic_launcher_round"/>
+        android:background="@mipmap/ic_launcher_round"/>
+    <ImageView
+        android:id="@+id/ivApp2"
+        android:layout_width="60sp"
+        android:layout_height="60sp"
+        android:layout_margin="10sp"
+        android:background="@mipmap/ic_launcher_round"/>
+    <ImageView
+        android:id="@+id/ivApp3"
+        android:layout_width="60sp"
+        android:layout_height="60sp"
+        android:layout_margin="10sp"
+        android:background="@mipmap/ic_launcher_round"/>
 
-    </LinearLayout>
-
-    
 </LinearLayout>

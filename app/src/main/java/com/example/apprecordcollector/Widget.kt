@@ -8,12 +8,9 @@ import android.content.BroadcastReceiver
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import android.content.IntentFilter
-import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.drawable.BitmapDrawable
-import android.graphics.drawable.Drawable
 import android.util.Log
 import android.widget.RemoteViews
 import android.widget.Toast
@@ -28,43 +25,12 @@ var sortedList : List<Pair<String,Double>> = listOf()
 class Widget: AppWidgetProvider() {
     @SuppressLint("InlinedApi")
 
-    private val sharedPrefName = "widget_pref"
-    private val sharedPrefKey = "widget_created"
-
-    override fun onDisabled(context: Context) {
-        super.onDisabled(context)
-
-        val prefs = context.getSharedPreferences(sharedPrefName,Context.MODE_PRIVATE)
-        prefs.edit().putBoolean(sharedPrefKey,false).apply()
-        Log.d("onDisabled", "onDisabled: Widget removed, flag reset")
-    }
-
-    override fun onReceive(context: Context, intent: Intent) {
-        super.onReceive(context, intent)
-
-        val prefs = context.getSharedPreferences(sharedPrefName,Context.MODE_PRIVATE)
-        val widgetCreated = prefs.getBoolean(sharedPrefKey,false)
-
-        if(widgetCreated && intent.action == AppWidgetManager.ACTION_APPWIDGET_UPDATE){
-            Toast.makeText(context, "Only one widget allowed for this app", Toast.LENGTH_SHORT).show()
-            return
-        }
-        
-    }
-
     override fun onUpdate(
         context: Context,
         appWidgetManager: AppWidgetManager,
         appWidgetIds: IntArray
     ) {
         super.onUpdate(context, appWidgetManager, appWidgetIds)
-
-        val prefs = context.getSharedPreferences(sharedPrefName,Context.MODE_PRIVATE)
-        val widgetCreated = prefs.getBoolean(sharedPrefKey,false)
-        if(widgetCreated){
-            return
-        }
-        prefs.edit().putBoolean(sharedPrefKey,true).apply()
 
         lastApp.clear()
         cosineSimVal.clear()
