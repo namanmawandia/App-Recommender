@@ -93,9 +93,9 @@ class Widget: AppWidgetProvider() {
             views.setImageViewBitmap(ivApp2,getAppIcon(context,sortedList[1].first))
             views.setImageViewBitmap(ivApp3,getAppIcon(context,sortedList[2].first))
 
-            setAppLaunchOnClick(context,views, ivApp1, cosineSimVal.entries.elementAt(0).key)
-            setAppLaunchOnClick(context,views, ivApp1, cosineSimVal.entries.elementAt(1).key)
-            setAppLaunchOnClick(context,views, ivApp1, cosineSimVal.entries.elementAt(2).key)
+            setAppLaunchOnClick(context,views, ivApp1, sortedList[0].first)
+            setAppLaunchOnClick(context,views, ivApp2, sortedList[1].first)
+            setAppLaunchOnClick(context,views, ivApp3, sortedList[2].first)
 
             appWidgetManager.updateAppWidget(appWidgetId,views)
 
