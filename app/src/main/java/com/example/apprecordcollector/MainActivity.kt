@@ -62,6 +62,9 @@ class MainActivity : ComponentActivity() {
 
         btnFetch.setOnClickListener{
             appTimeMap.clear()
+            lastApp.clear()
+            cosineSimVal.clear()
+
             ivApp1.setVisibility(View.INVISIBLE)
             ivApp2.setVisibility(View.INVISIBLE)
             ivApp3.setVisibility(View.INVISIBLE)
@@ -72,9 +75,9 @@ class MainActivity : ComponentActivity() {
             WorkManager.getInstance(it.context).getWorkInfoByIdLiveData(workRequest.id)
                 .observe(this) { workInfo ->
                 if (workInfo != null && workInfo.state.isFinished) {
-                    cosineSimVal = findCosine()
                     cosineSimVal.remove(lastApp[0])
-                    Log.d("OneTimeRequest", "Cosine similarity: ${cosineSimVal}")
+                    Log.d("OneTimeRequest", "Cosine similarity: ${lastApp}")
+                    Log.d("onUpdate", "Cosine similarity: ${cosineSimVal}")
                     cosineSimVal= sortAndSet(cosineSimVal, ivApp1,ivApp2, ivApp3)
                 }
             }
@@ -133,28 +136,6 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    fun findCosine():MutableMap<String,Double>{
-        val cosineSimVal: MutableMap<String, Double> = mutableMapOf<String, Double>().withDefault {0.0}
-        Log.d("cosineSimilarity", "findCosine: ${lastApp}")
-        for(lapp in lastApp) {
-            val appA = appTimeMap[lapp]
-            val time = LocalTime.now().hour
-            appA!![time] = appA[time]*(3-lastApp.indexOf(lapp))
-            val magA = sqrt(appA.sumOf { it * it }.toDouble())
-            for ((app, list) in appTimeMap) {
-                val dotProd = appA.zip(list).sumOf { (a, b) -> a * b * 1.0 }
-                val magB = sqrt(list.sumOf { it * it }.toDouble())
-                cosineSimVal[app] = cosineSimVal.getValue(app) +
-                    (if (magA == 0.0 || magB == 0.0) 0.0
-                else (dotProd * 1.0) / (magA * magB))
-            }
-        }
-        cosineSimVal.forEach{(key,value)-> cosineSimVal[key] = value/3.0}
-        Log.d("cosineSimilarity", "findCosine: $cosineSimVal")
-
-        return cosineSimVal
-    }
-
     fun hasUsageStatsPermission(context: Context): Boolean {
         val appOpsManager = context.getSystemService(Context.APP_OPS_SERVICE) as AppOpsManager
         val mode = appOpsManager.unsafeCheckOpNoThrow(
@@ -208,12 +189,36 @@ class AppWorker(context: Context, workerParam:WorkerParameters): Worker(context,
                 val appName = getAppNameFromPackageName(currentApp.packageName, applicationContext)
 
                 cosineSimilarityInitilization(currentApp.packageName, currentApp.lastTimeUsed)
+                cosineSimVal = findCosine()
 
 //                logAppUsage(applicationContext,currentApp.packageName, currentApp.lastTimeUsed, appName)
             }
         }
+        Log.d("onUpdate", "appTimeMap $appTimeMap")
         broadcastSend(applicationContext)
         return Result.success()
+    }
+
+    fun findCosine():MutableMap<String,Double>{
+        val cosineSimVal: MutableMap<String, Double> = mutableMapOf<String, Double>().withDefault {0.0}
+        Log.d("cosineSimilarity", "findCosine: ${lastApp}")
+        for(lapp in lastApp) {
+            val appA = appTimeMap[lapp]
+            val time = LocalTime.now().hour
+            appA!![time] = appA[time]*(3-lastApp.indexOf(lapp))
+            val magA = sqrt(appA.sumOf { it * it }.toDouble())
+            for ((app, list) in appTimeMap) {
+                val dotProd = appA.zip(list).sumOf { (a, b) -> a * b * 1.0 }
+                val magB = sqrt(list.sumOf { it * it }.toDouble())
+                cosineSimVal[app] = cosineSimVal.getValue(app) +
+                        (if (magA == 0.0 || magB == 0.0) 0.0
+                        else (dotProd * 1.0) / (magA * magB))
+            }
+        }
+        cosineSimVal.forEach{(key,value)-> cosineSimVal[key] = value/3.0}
+        Log.d("cosineSimilarity", "findCosine: $cosineSimVal")
+
+        return cosineSimVal
     }
 
     fun cosineSimilarityInitilization(packageName: String, lastUsed: Long){
@@ -266,7 +271,6 @@ class AppWorker(context: Context, workerParam:WorkerParameters): Worker(context,
                 Log.e("logAppUsage", "Error creating file: $e")
             }
         }
-
         // Append app usage data to the CSV file
         try {
             val fileOutputStream = FileOutputStream(file, true)

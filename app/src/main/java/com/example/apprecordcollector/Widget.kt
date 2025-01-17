@@ -113,8 +113,10 @@ class mainActivityBroadcastReceiver: BroadcastReceiver() {
             val appWidgetIds = appWidgetManager.getAppWidgetIds(componentName)
 
             Log.d("onUpdate", "onReceive: $lastApp")
-            var cosineSimValWidget = findCosine()
+            Log.d("onUpdate", "appTimeMap Widget $appTimeMap")
+            var cosineSimValWidget = cosineSimVal
             cosineSimValWidget.remove(lastApp[0])
+            Log.d("onUpdate", "Cosine Similarity Widget $cosineSimValWidget")
             sortedList = cosineSimValWidget.toList().sortedByDescending { (_, value) -> value }
             Log.d("onUpdate", "Sorted List: $sortedList")
             cosineSimValWidget = sortedList.toMap().toMutableMap()
@@ -123,27 +125,5 @@ class mainActivityBroadcastReceiver: BroadcastReceiver() {
                 updateAppWidget(context, appWidgetManager, appWidgetId, sortedList)
             }
         }
-    }
-
-    fun findCosine():MutableMap<String,Double>{
-        val cosineSimVal: MutableMap<String, Double> = mutableMapOf<String, Double>().withDefault {0.0}
-        Log.d("cosineSimilarityWidget", "findCosine: ${lastApp}")
-        for(lapp in lastApp) {
-            val appA = appTimeMap[lapp]
-            val time = LocalTime.now().hour
-            appA!![time] = appA[time]*(3-lastApp.indexOf(lapp))
-            val magA = sqrt(appA.sumOf { it * it }.toDouble())
-            for ((app, list) in appTimeMap) {
-                val dotProd = appA.zip(list).sumOf { (a, b) -> a * b * 1.0 }
-                val magB = sqrt(list.sumOf { it * it }.toDouble())
-                cosineSimVal[app] = cosineSimVal.getValue(app) +
-                        (if (magA == 0.0 || magB == 0.0) 0.0
-                        else (dotProd * 1.0) / (magA * magB))
-            }
-        }
-        cosineSimVal.forEach{(key,value)-> cosineSimVal[key] = value/3.0}
-        Log.d("cosineSimilarityWidget", "findCosine: $cosineSimVal")
-
-        return cosineSimVal
     }
 }
