@@ -74,7 +74,7 @@ class MainActivity : ComponentActivity() {
                 if (workInfo != null && workInfo.state.isFinished) {
                     cosineSimVal = findCosine()
                     cosineSimVal.remove(lastApp[0])
-                    Log.d("OneTimeRequest", "Cosine similarity: ${cosineSimVal.isEmpty()}")
+                    Log.d("OneTimeRequest", "Cosine similarity: ${cosineSimVal}")
                     cosineSimVal= sortAndSet(cosineSimVal, ivApp1,ivApp2, ivApp3)
                 }
             }
@@ -206,10 +206,8 @@ class AppWorker(context: Context, workerParam:WorkerParameters): Worker(context,
                     Log.d("doWork", "doWork: sorted stats size, ${lastApp}")
                 }
                 val appName = getAppNameFromPackageName(currentApp.packageName, applicationContext)
-                Log.d("doWork", "doWork: ${currentApp.packageName}, $appName")
 
                 cosineSimilarityInitilization(currentApp.packageName, currentApp.lastTimeUsed)
-                Log.d("cosineSimilarity", "doWork: ${currentApp.packageName}  ${appTimeMap[currentApp.packageName]}")
 
 //                logAppUsage(applicationContext,currentApp.packageName, currentApp.lastTimeUsed, appName)
             }

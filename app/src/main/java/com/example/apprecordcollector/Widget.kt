@@ -13,7 +13,6 @@ import android.graphics.Canvas
 import android.graphics.drawable.BitmapDrawable
 import android.util.Log
 import android.widget.RemoteViews
-import android.widget.Toast
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import com.example.apprecordcollector.Widget.Companion.updateAppWidget
@@ -76,14 +75,12 @@ class Widget: AppWidgetProvider() {
             val packageManager = context.packageManager
             val launchIntent = packageManager.getLaunchIntentForPackage(packageName)
 
-            Log.d("onUpdate", "setAppLaunchOnClick: launchIntent $launchIntent")
             val pendingIntent = PendingIntent.getActivity(context,packageManager.hashCode(),
                 launchIntent,PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
             views.setOnClickPendingIntent(viewId,pendingIntent)
             Log.d("onUpdate", "setAppLaunchOnClick: Clickable set")
 
         }
-
 
         fun getAppIcon(context: Context, packageName: String): Bitmap {
             val packageManager = context.packageManager
@@ -104,23 +101,23 @@ class Widget: AppWidgetProvider() {
             return bitmap
         }
     }
-
 }
 
 class mainActivityBroadcastReceiver: BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         if (intent.action == "com.AppRecordCollector.Worker_Complete") {
 
+            sortedList = listOf()
             val appWidgetManager = AppWidgetManager.getInstance(context)
             val componentName =  ComponentName(context, Widget:: class.java)
             val appWidgetIds = appWidgetManager.getAppWidgetIds(componentName)
 
             Log.d("onUpdate", "onReceive: $lastApp")
-            cosineSimVal = findCosine()
-            cosineSimVal.remove(lastApp[0])
-            sortedList = cosineSimVal.toList().sortedByDescending { (_, value) -> value }
+            var cosineSimValWidget = findCosine()
+            cosineSimValWidget.remove(lastApp[0])
+            sortedList = cosineSimValWidget.toList().sortedByDescending { (_, value) -> value }
             Log.d("onUpdate", "Sorted List: $sortedList")
-            cosineSimVal = sortedList.toMap().toMutableMap()
+            cosineSimValWidget = sortedList.toMap().toMutableMap()
 
             for (appWidgetId in appWidgetIds) {
                 updateAppWidget(context, appWidgetManager, appWidgetId, sortedList)
