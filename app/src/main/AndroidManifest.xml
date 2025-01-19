@@ -6,6 +6,8 @@
         tools:ignore="ProtectedPermissions" />
     <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES"
         tools:ignore="QueryAllPackagesPermission" />
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS"/>
 
     <application
         android:allowBackup="true"
@@ -40,6 +42,11 @@
             <intent-filter>
                 <action android:name="com.AppRecordCollector.Worker_Complete" />
             </intent-filter>
+        </receiver>
+        <receiver
+            android:name=".AlarmBroadcastReceiverApp"
+            android:enabled="true"
+            android:exported="true">
         </receiver>
     </application>
 </manifest>

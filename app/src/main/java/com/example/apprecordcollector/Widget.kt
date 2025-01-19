@@ -1,6 +1,7 @@
 package com.example.apprecordcollector
 
 import android.annotation.SuppressLint
+import android.app.AlarmManager
 import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
@@ -8,6 +9,7 @@ import android.content.BroadcastReceiver
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.drawable.BitmapDrawable
@@ -16,13 +18,39 @@ import android.widget.RemoteViews
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import com.example.apprecordcollector.Widget.Companion.updateAppWidget
-import java.time.LocalTime
-import kotlin.math.sqrt
 
 var sortedList : List<Pair<String,Double>> = listOf()
 
 class Widget: AppWidgetProvider() {
     @SuppressLint("InlinedApi")
+
+    override fun onEnabled(context: Context) {
+        super.onEnabled(context)
+
+        val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+
+        Log.d("onEnabled", "onEnabled: inside onEnabled")
+//        val interval = AlarmManager.INTERVAL_FIFTEEN_MINUTES
+        val interval = 5 * 60 * 1000L
+        val triggerTime = System.currentTimeMillis() + interval
+
+        Log.d("onEnabled", "Alarm set to trigger at: $triggerTime")
+        val intent = Intent(context, AlarmBroadcastReceiverApp::class.java)
+        val pendingIntent = PendingIntent.getBroadcast(context, 0, intent,
+            PendingIntent.FLAG_IMMUTABLE)
+
+        alarmManager.setInexactRepeating(AlarmManager.RTC, triggerTime, interval, pendingIntent)
+    }
+
+    override fun onDisabled(context: Context) {
+        super.onDisabled(context)
+        Log.d("onDisabled", "onDisabled: inside")
+        val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        val intent = Intent(context, AlarmBroadcastReceiverApp::class.java)
+        val pendingIntent = PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_IMMUTABLE)
+
+        alarmManager.cancel(pendingIntent)
+    }
 
     override fun onUpdate(
         context: Context,
@@ -114,16 +142,29 @@ class mainActivityBroadcastReceiver: BroadcastReceiver() {
 
             Log.d("onUpdate", "onReceive: $lastApp")
             Log.d("onUpdate", "appTimeMap Widget $appTimeMap")
+
             var cosineSimValWidget = cosineSimVal
             cosineSimValWidget.remove(lastApp[0])
+
             Log.d("onUpdate", "Cosine Similarity Widget $cosineSimValWidget")
             sortedList = cosineSimValWidget.toList().sortedByDescending { (_, value) -> value }
             Log.d("onUpdate", "Sorted List: $sortedList")
-            cosineSimValWidget = sortedList.toMap().toMutableMap()
 
             for (appWidgetId in appWidgetIds) {
                 updateAppWidget(context, appWidgetManager, appWidgetId, sortedList)
             }
         }
+    }
+}
+
+class AlarmBroadcastReceiverApp : BroadcastReceiver() {
+    override fun onReceive(context: Context, intent: Intent) {
+        Log.d("AlarmBroadcastReceiverApp", "ALarmBroadcast inside")
+
+        val appWidgetManager = AppWidgetManager.getInstance(context)
+        val appWidgetIds = appWidgetManager.getAppWidgetIds(ComponentName(context, Widget::class.java))
+
+        Widget().onUpdate(context, appWidgetManager, appWidgetIds)
+
     }
 }

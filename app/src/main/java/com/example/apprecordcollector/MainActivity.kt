@@ -1,24 +1,27 @@
 package com.example.apprecordcollector
 
+import android.annotation.SuppressLint
 import android.app.AppOpsManager
-import android.os.Bundle
-import android.widget.Button
-import androidx.activity.ComponentActivity
-import androidx.work.WorkManager
 import android.app.usage.UsageStatsManager
 import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.drawable.Drawable
+import android.net.Uri
+import android.os.Bundle
 import android.os.Environment
+import android.os.PowerManager
 import android.provider.MediaStore
 import android.provider.Settings
 import android.util.Log
 import android.view.View
+import android.widget.Button
 import android.widget.ImageView
 import android.widget.Toast
+import androidx.activity.ComponentActivity
 import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
 import androidx.work.Worker
 import androidx.work.WorkerParameters
 import java.io.File
@@ -30,11 +33,13 @@ import java.time.LocalTime
 import java.util.*
 import kotlin.math.sqrt
 
+
 val appTimeMap: MutableMap<String, MutableList<Int>> = mutableMapOf()
 var lastApp: MutableList<String> = mutableListOf()
 var cosineSimVal:MutableMap<String, Double> = mutableMapOf()
 
 class MainActivity : ComponentActivity() {
+    @SuppressLint("BatteryLife")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -58,6 +63,15 @@ class MainActivity : ComponentActivity() {
             }
         }else{
             Log.d("onCreate", "onCreate: permission for UsageStats already granted")
+        }
+
+        val powerManager = this.getSystemService(Context.POWER_SERVICE) as PowerManager
+        if(!powerManager.isIgnoringBatteryOptimizations(this.packageName)) {
+            Log.d("PowerManager", "onCreate: inside")
+            val intent = Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS).apply {
+                data = Uri.parse("package:${applicationContext.packageName}")
+            }
+            this.startActivity(intent)
         }
 
         btnFetch.setOnClickListener{
@@ -186,7 +200,7 @@ class AppWorker(context: Context, workerParam:WorkerParameters): Worker(context,
                     lastApp.add(currentApp.packageName)
                     Log.d("doWork", "doWork: sorted stats size, ${lastApp}")
                 }
-                val appName = getAppNameFromPackageName(currentApp.packageName, applicationContext)
+//                val appName = getAppNameFromPackageName(currentApp.packageName, applicationContext)
 
                 cosineSimilarityInitilization(currentApp.packageName, currentApp.lastTimeUsed)
                 cosineSimVal = findCosine()
