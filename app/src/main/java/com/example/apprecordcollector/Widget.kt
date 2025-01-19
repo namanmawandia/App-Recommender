@@ -9,7 +9,6 @@ import android.content.BroadcastReceiver
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import android.content.IntentFilter
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.drawable.BitmapDrawable
@@ -143,7 +142,7 @@ class mainActivityBroadcastReceiver: BroadcastReceiver() {
             Log.d("onUpdate", "onReceive: $lastApp")
             Log.d("onUpdate", "appTimeMap Widget $appTimeMap")
 
-            var cosineSimValWidget = cosineSimVal
+            val cosineSimValWidget = cosineSimVal
             cosineSimValWidget.remove(lastApp[0])
 
             Log.d("onUpdate", "Cosine Similarity Widget $cosineSimValWidget")
