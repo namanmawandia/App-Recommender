@@ -159,26 +159,26 @@ class MainActivity : ComponentActivity() {
         return mode == AppOpsManager.MODE_ALLOWED
     }
 
-    fun copyCSVToDownloads(context: Context, fileName: String) {
-        val contentResolver = context.contentResolver
-        val contentValues = ContentValues().apply {
-            put(MediaStore.MediaColumns.DISPLAY_NAME, fileName)
-            put(MediaStore.MediaColumns.MIME_TYPE, "text/csv")
-            put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS)
-        }
-
-        val uri = contentResolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, contentValues)
-        uri?.let {
-            val sourceFile = File(context.filesDir, fileName)
-            contentResolver.openOutputStream(it)?.use { outputStream ->
-                FileInputStream(sourceFile).use { inputStream ->
-                    inputStream.copyTo(outputStream)
-                }
-            }
-            println("File saved to Downloads using MediaStore: $uri")
-            Toast.makeText(this, "File saved to downloads", Toast.LENGTH_SHORT).show()
-        } ?: println("Error saving file to Downloads, NUll URI")
-    }
+//    fun copyCSVToDownloads(context: Context, fileName: String) {
+//        val contentResolver = context.contentResolver
+//        val contentValues = ContentValues().apply {
+//            put(MediaStore.MediaColumns.DISPLAY_NAME, fileName)
+//            put(MediaStore.MediaColumns.MIME_TYPE, "text/csv")
+//            put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS)
+//        }
+//
+//        val uri = contentResolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, contentValues)
+//        uri?.let {
+//            val sourceFile = File(context.filesDir, fileName)
+//            contentResolver.openOutputStream(it)?.use { outputStream ->
+//                FileInputStream(sourceFile).use { inputStream ->
+//                    inputStream.copyTo(outputStream)
+//                }
+//            }
+//            println("File saved to Downloads using MediaStore: $uri")
+//            Toast.makeText(this, "File saved to downloads", Toast.LENGTH_SHORT).show()
+//        } ?: println("Error saving file to Downloads, NUll URI")
+//    }
 
 }
 
@@ -257,46 +257,46 @@ class AppWorker(context: Context, workerParam:WorkerParameters): Worker(context,
         return intent != null
     }
 
-    fun getAppNameFromPackageName(packageName: String, context: Context): String {
-        return try {
-            val packageManager = context.packageManager
-            val appInfo = packageManager.getApplicationInfo(packageName, 0)
-            packageManager.getApplicationLabel(appInfo).toString()
-        } catch (e: PackageManager.NameNotFoundException) {
-            "Unknown App"
-        }
-    }
+//    fun getAppNameFromPackageName(packageName: String, context: Context): String {
+//        return try {
+//            val packageManager = context.packageManager
+//            val appInfo = packageManager.getApplicationInfo(packageName, 0)
+//            packageManager.getApplicationLabel(appInfo).toString()
+//        } catch (e: PackageManager.NameNotFoundException) {
+//            "Unknown App"
+//        }
+//    }
 
-    fun logAppUsage(context: Context, packageName: String, lastUsed: Long, appName: String) {
-        val formattedTime = formatTime(lastUsed)
-
-        val file = File(context.filesDir, "app_usage_data.csv")
-        Log.d("logAppUsage", "logAppUsage: file define complete")
-
-        if (!file.exists()) {
-            try {
-                // Create the file and add headers
-                val fileOutputStream = FileOutputStream(file, true)
-                val writer = OutputStreamWriter(fileOutputStream)
-                writer.append("Package Name,Last Used,App Name\n")  // CSV header row
-                writer.close()
-                Log.d("logAppUsage", "file writing successful")
-            } catch (e: Exception) {
-                Log.e("logAppUsage", "Error creating file: $e")
-            }
-        }
-        // Append app usage data to the CSV file
-        try {
-            val fileOutputStream = FileOutputStream(file, true)
-            val writer = OutputStreamWriter(fileOutputStream)
-            Log.d("logAppUsage", "logAppUsage: File define for append successful")
-            writer.append("$packageName,$formattedTime, $appName\n")  // CSV data row
-            writer.close()
-            Log.d("logAppUsage", "Logged app usage: $packageName at $formattedTime")
-        } catch (e: Exception) {
-            Log.e("logAppUsage", "Error writing to file: $e")
-        }
-    }
+//    fun logAppUsage(context: Context, packageName: String, lastUsed: Long, appName: String) {
+//        val formattedTime = formatTime(lastUsed)
+//
+//        val file = File(context.filesDir, "app_usage_data.csv")
+//        Log.d("logAppUsage", "logAppUsage: file define complete")
+//
+//        if (!file.exists()) {
+//            try {
+//                // Create the file and add headers
+//                val fileOutputStream = FileOutputStream(file, true)
+//                val writer = OutputStreamWriter(fileOutputStream)
+//                writer.append("Package Name,Last Used,App Name\n")  // CSV header row
+//                writer.close()
+//                Log.d("logAppUsage", "file writing successful")
+//            } catch (e: Exception) {
+//                Log.e("logAppUsage", "Error creating file: $e")
+//            }
+//        }
+//        // Append app usage data to the CSV file
+//        try {
+//            val fileOutputStream = FileOutputStream(file, true)
+//            val writer = OutputStreamWriter(fileOutputStream)
+//            Log.d("logAppUsage", "logAppUsage: File define for append successful")
+//            writer.append("$packageName,$formattedTime, $appName\n")  // CSV data row
+//            writer.close()
+//            Log.d("logAppUsage", "Logged app usage: $packageName at $formattedTime")
+//        } catch (e: Exception) {
+//            Log.e("logAppUsage", "Error writing to file: $e")
+//        }
+//    }
 
     fun formatTime(timestamp: Long): String {
         val sdf = SimpleDateFormat("dd:MM:yyyy:HH:mm:ss", Locale.getDefault())
