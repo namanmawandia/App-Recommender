@@ -29,7 +29,7 @@ class Widget: AppWidgetProvider() {
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
 
         Log.d("onEnabled", "onEnabled: inside onEnabled")
-        val interval = 5 * 60 * 1000L
+        val interval = 10 * 60 * 1000L
         val triggerTime = System.currentTimeMillis() + interval
 
         Log.d("onEnabled", "Alarm set to trigger at: $triggerTime")
