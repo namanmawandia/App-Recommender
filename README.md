@@ -9,6 +9,7 @@ This project revolves around the development of an innovative Android applicatio
 - [Getting Started](#getting-started)
 - [Usage](#usage)
 - [Major Elements](#major-elements)
+- [Screenshots](#screenshots)
 - [Contact](#contact)
 
 ## About the Project
@@ -90,4 +91,11 @@ The app implements a cosine similarity-based model to calculate relevance scores
 - **Enhanced Prioritization:** Additional calculations have been incorporated to prioritize apps used at the same time on the previous day. This context-aware refinement improves the accuracy and relevance of recommendations.
   
 By combining a lightweight computational model with carefully optimized background processing, the app achieves a balance between performance and efficiency, delivering accurate recommendations while preserving system resources.
-  
+
+## Screenshots
+  | **App Screen** | **Screen with Widget**| 
+  | ------------ | ----------------| 
+  | <img src="https://github.com/user-attachments/assets/ce02d318-dd57-4a58-aaff-5a5252e5089a" width="300"> | <img src="https://github.com/user-attachments/assets/bfc82082-817f-4b18-82a6-50c2ad8b1531" width="300" > |
+
+## Contact
+  Email: namanmawa123@gmail.com
