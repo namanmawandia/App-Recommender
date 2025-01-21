@@ -8,7 +8,7 @@ This project revolves around the development of an innovative Android applicatio
   - [Built With](#built-with)
 - [Getting Started](#getting-started)
 - [Usage](#usage)
-- [Roadmap](#roadmap)
+- [Major Elements](#major-elements)
 - [Contact](#contact)
 
 ## About the Project
@@ -73,6 +73,21 @@ These permissions are crucial for delivering the app's core functionality, ensur
 
 ## Major Elements
 
-**1. BroadcastsReceiver:**
+**1. Worker Threads**
+Worker threads are employed to handle model calculations efficiently in the background. By offloading these computations from the main thread, the app ensures smooth and uninterrupted user experience.
 
+**2. Broadcast Receivers**
+Broadcast receivers play a pivotal role in the app by listening for specific system events and triggering associated tasks.
+
+- **Completion Indicator:** A broadcast receiver is used to signal when the worker thread has completed its calculations.
+- **Alarm Broadcast:** Another instance of the broadcast receiver is utilized to periodically update the widget, ensuring recommendations remain fresh and relevant.
+  
+**3. Cosine Similarity Model**
+The app implements a cosine similarity-based model to calculate relevance scores for each app installed on the device. Key details of the implementation include:
+
+- **Model Functionality:** The model evaluates the relationship between the last 2-3 apps used by the user and all other apps on the device,  After that it determines the top 3 apps to recommend based on their cosine similarity scores.
+- **Lightweight and Efficient:** This approach is deliberately lightweight to minimize processor and battery usage. Avoiding resource-heavy models ensures the app remains efficient and does not compromise device performance.
+- **Enhanced Prioritization:** Additional calculations have been incorporated to prioritize apps used at the same time on the previous day. This context-aware refinement improves the accuracy and relevance of recommendations.
+  
+By combining a lightweight computational model with carefully optimized background processing, the app achieves a balance between performance and efficiency, delivering accurate recommendations while preserving system resources.
   
