@@ -9,10 +9,7 @@ This project revolves around the development of an innovative Android applicatio
 - [Getting Started](#getting-started)
 - [Usage](#usage)
 - [Roadmap](#roadmap)
-- [Contributing](#contributing)
-- [License](#license)
 - [Contact](#contact)
-- [Acknowledgements](#acknowledgements)
 
 ## About the Project
 
@@ -29,7 +26,7 @@ Here’s where widgets come to the rescue! The App-Recommender integrates dynami
 Majorly involves:
 - [Android Studio](https://developer.android.com/studio/)
 - [Kotlin](https://kotlinlang.org/)
-- [xml](https://developer.android.com/guide/topics/resources/layout-resource)
+- [xml](https://developer.android.com/guide/topics/resources/layout-resource) 
 
 ## Getting Started
 To get started with the App-Recommender project, follow these simple steps to set up your development environment and begin building your application:
@@ -62,3 +59,20 @@ Create additional classes as needed for specific functionalities, such as recomm
 Include a dedicated Widget Class to manage the dynamic widget functionality for displaying app recommendations on the home screen.
 With these steps, you’re ready to start building and customizing the App-Recommender project.
 
+## Usage
+
+Currently, the App-Recommender application is not available on the Play Store or other app marketplaces. However, it can be easily installed by running the project through Android Studio. To ensure the app functions effectively, users need to grant two key permissions:
+
+**1. PACKAGE_USAGE_STATS :**
+This permission is essential to access the usage history of apps on the device. By analyzing this data, the app can generate accurate and context-aware recommendations based on the user's app usage patterns and timing.
+
+**2. REQUEST_IGNORE_BATTERY_OPTIMIZATIONS :**
+This permission is primarily required for the widget functionality. It allows the widget to update with a higher frequency, ensuring fresh and relevant app recommendations are displayed in near real-time (with intervals of less than 30 minutes).
+
+These permissions are crucial for delivering the app's core functionality, ensuring users receive accurate and timely recommendations without compromising the app's efficiency or responsiveness.
+
+## Major Elements
+
+**1. BroadcastsReceiver:**
+
+  
