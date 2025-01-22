@@ -74,7 +74,7 @@ These permissions are crucial for delivering the app's core functionality, ensur
 
 ## Major Elements
 
-**1. Worker Threads**
+**1. Worker Class/Manager**
 Worker threads are employed to handle model calculations efficiently in the background. By offloading these computations from the main thread, the app ensures smooth and uninterrupted user experience.
 
 **2. Broadcast Receivers**
