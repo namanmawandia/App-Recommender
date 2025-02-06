@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Recommender</string>
+    <string name="create_widgets_for_easy_access_on_home_screen">Create widgets for easy access on home screen</string>
 </resources>

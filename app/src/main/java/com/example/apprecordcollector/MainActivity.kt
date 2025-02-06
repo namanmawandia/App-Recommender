@@ -15,6 +15,7 @@ import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.ImageView
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.work.OneTimeWorkRequestBuilder
@@ -41,10 +42,12 @@ class MainActivity : ComponentActivity() {
         val ivApp1 = findViewById<ImageView>(R.id.ivApp1)
         val ivApp2 = findViewById<ImageView>(R.id.ivApp2)
         val ivApp3 = findViewById<ImageView>(R.id.ivApp3)
+        val tvMsg = findViewById<TextView>(R.id.tvMsg)
 
         ivApp1.setVisibility(View.GONE)
         ivApp2.setVisibility(View.GONE)
         ivApp3.setVisibility(View.GONE)
+        tvMsg.visibility = View.GONE
 
         if(!hasUsageStatsPermission(this)) {
             val intent = Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS)
@@ -75,6 +78,8 @@ class MainActivity : ComponentActivity() {
             ivApp1.setVisibility(View.INVISIBLE)
             ivApp2.setVisibility(View.INVISIBLE)
             ivApp3.setVisibility(View.INVISIBLE)
+            tvMsg.visibility = View.INVISIBLE
+
             val workRequest = OneTimeWorkRequestBuilder<AppWorker>().build()
             WorkManager.getInstance(it.context).enqueue(workRequest)
             Log.d("OneTimeRequest", "onCreate: one time request done")
@@ -88,7 +93,8 @@ class MainActivity : ComponentActivity() {
                     cosineSimVal= sortAndSet(cosineSimVal, ivApp1,ivApp2, ivApp3)
                 }
             }
-//            copyCSVToDownloads(this,"app_usage_data.csv")
+
+            tvMsg.visibility = View.VISIBLE
         }
         ivApp1.setOnClickListener{
             val intent = packageManager.getLaunchIntentForPackage(

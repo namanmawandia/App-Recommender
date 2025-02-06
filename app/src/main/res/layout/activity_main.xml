@@ -48,4 +48,13 @@
 
     </LinearLayout>
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/tvMsg"
+        android:text="@string/create_widgets_for_easy_access_on_home_screen"
+        android:textSize="17sp"
+        android:textColor="@color/teal_700"
+        android:layout_margin="20dp"/>
+
 </LinearLayout>
