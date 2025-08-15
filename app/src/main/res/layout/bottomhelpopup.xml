@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/soft_beige"
+    android:layout_marginBottom="30dp"
+    android:paddingBottom="30dp">
+
+    <Toolbar
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/orange"
+        android:title="Widget Help"
+        android:titleTextColor="@color/white"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/text1"
+        android:text="Follow the steps below to create a widget:"
+        android:textSize="17sp"
+        android:gravity="left"
+        android:textColor="@color/WarmBrown"
+        android:layout_marginTop="20dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"/>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/text2"
+        android:text="@string/WidgetHelptext2"
+        android:textSize="16sp"
+        android:gravity="left"
+        android:textColor="@color/WarmBrown"
+        android:layout_marginTop="10dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="10dp"/>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/text3"
+        android:text="@string/WidgetHelptext3"
+        android:textSize="16sp"
+        android:gravity="left"
+        android:textColor="@color/WarmBrown"
+        android:layout_marginTop="10dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"/>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/text4"
+        android:text="@string/WidgetHelptext4"
+        android:textSize="16sp"
+        android:gravity="left"
+        android:textColor="@color/WarmBrown"
+        android:layout_marginTop="10dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="10dp"/>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/text5"
+        android:text="@string/WidgetHelptext5"
+        android:textSize="16sp"
+        android:gravity="left"
+        android:textColor="@color/WarmBrown"
+        android:layout_marginTop="10dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="10dp"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/text6"
+        android:textStyle="italic"
+        android:text="Tip: You can resize the widget after adding it."
+        android:textSize="17sp"
+        android:gravity="left"
+        android:textColor="@color/WarmBrown"
+        android:layout_marginTop="20dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"/>
+
+
+</LinearLayout>

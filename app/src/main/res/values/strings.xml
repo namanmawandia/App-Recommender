@@ -1,4 +1,9 @@
 <resources>
     <string name="app_name">Recommender</string>
     <string name="create_widgets_for_easy_access_on_home_screen">Create Widgets for easy access on home screen.</string>
+    <string name="WidgetHelptext4"><b>3.</b> Find \'Recommender\' in the widgets list and select its widget</string>
+    <string name="WidgetHelptext2"><b>1.</b> Tap and hold an empty area on your Home screen.</string>
+    <string name="WidgetHelptext3"><b>2.</b> Select Widgets from the menu at the bottom.</string>
+    <string name="WidgetHelptext5"><b>4.</b> Drag the widget to your Home screen and release.</string>
+
 </resources>

@@ -23,6 +23,7 @@ import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.Worker
 import androidx.work.WorkerParameters
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import java.text.SimpleDateFormat
 import java.time.LocalTime
 import java.util.*
@@ -45,6 +46,7 @@ class MainActivity : ComponentActivity() {
         val ivApp3 = findViewById<ImageView>(R.id.ivApp3)
         val tvMsg = findViewById<TextView>(R.id.tvMsg)
         val lnrlytHow = findViewById<LinearLayout>(R.id.lnrlytHow)
+        val tvClickhere = findViewById<TextView>(R.id.tvClickhere)
 
         ivApp1.setVisibility(View.GONE)
         ivApp2.setVisibility(View.GONE)
@@ -125,6 +127,13 @@ class MainActivity : ComponentActivity() {
                 startActivity(intent)
             else
                 Toast.makeText(this, "App not found", Toast.LENGTH_SHORT).show()
+        }
+
+        tvClickhere.setOnClickListener{
+            val view = layoutInflater.inflate(R.layout.bottomhelpopup, null)
+            val dialog = BottomSheetDialog(this)
+            dialog.setContentView(view)
+            dialog.show()
         }
     }
 
