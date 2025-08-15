@@ -15,6 +15,7 @@ import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -43,11 +44,14 @@ class MainActivity : ComponentActivity() {
         val ivApp2 = findViewById<ImageView>(R.id.ivApp2)
         val ivApp3 = findViewById<ImageView>(R.id.ivApp3)
         val tvMsg = findViewById<TextView>(R.id.tvMsg)
+        val lnrlytHow = findViewById<LinearLayout>(R.id.lnrlytHow)
 
         ivApp1.setVisibility(View.GONE)
         ivApp2.setVisibility(View.GONE)
         ivApp3.setVisibility(View.GONE)
         tvMsg.visibility = View.GONE
+        lnrlytHow.visibility = View.GONE
+
 
         if(!hasUsageStatsPermission(this)) {
             val intent = Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS)
@@ -79,6 +83,7 @@ class MainActivity : ComponentActivity() {
             ivApp2.setVisibility(View.INVISIBLE)
             ivApp3.setVisibility(View.INVISIBLE)
             tvMsg.visibility = View.INVISIBLE
+            lnrlytHow.visibility = View.INVISIBLE
 
             val workRequest = OneTimeWorkRequestBuilder<AppWorker>().build()
             WorkManager.getInstance(it.context).enqueue(workRequest)
@@ -95,6 +100,7 @@ class MainActivity : ComponentActivity() {
             }
 
             tvMsg.visibility = View.VISIBLE
+            lnrlytHow.visibility = View.VISIBLE
         }
         ivApp1.setOnClickListener{
             val intent = packageManager.getLaunchIntentForPackage(

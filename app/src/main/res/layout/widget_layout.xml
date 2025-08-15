@@ -8,18 +8,18 @@
 
     <ImageView
         android:id="@+id/ivApp1"
-        android:layout_width="60sp"
-        android:layout_height="60sp"
+        android:layout_width="70sp"
+        android:layout_height="70sp"
         android:layout_margin="10sp" />
     <ImageView
         android:id="@+id/ivApp2"
-        android:layout_width="60sp"
-        android:layout_height="60sp"
+        android:layout_width="70sp"
+        android:layout_height="70sp"
         android:layout_margin="10sp" />
     <ImageView
         android:id="@+id/ivApp3"
-        android:layout_width="60sp"
-        android:layout_height="60sp"
+        android:layout_width="70sp"
+        android:layout_height="70sp"
         android:layout_margin="10sp" />
 
 </LinearLayout>

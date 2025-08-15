@@ -9,4 +9,17 @@
     <color name="white">#FFFFFFFF</color>
     <color name="soft_beige">#FFF6E5</color>
     <color name="orange">#EDAB41</color>
+    <color name="WarmBrown">#795548</color>
+    <color name="DarkBurgundy">#8B2F3C</color>
+    <color name="Maroon">#800000</color>
+    <color name="Mahogany">#C04000</color>
+    <color name="Chestnut">#954535</color>
+    <color name="Cocoa">#A0522D</color>
+    <color name="Sienna">#A0522D</color>
+    <color name="Russet">#8B4000</color>
+    <color name="IndianRed">#CD5C5C</color>
+    <color name="Copper">#B87333</color>
+    <color name="BrickRed">#B22222</color>
+    <color name="Redwood">#A45A52</color>
+
 </resources>
