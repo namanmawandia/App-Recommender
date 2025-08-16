@@ -93,9 +93,9 @@ The app implements a cosine similarity-based model to calculate relevance scores
 By combining a lightweight computational model with carefully optimized background processing, the app achieves a balance between performance and efficiency, delivering accurate recommendations while preserving system resources.
 
 ## Screenshots
-  | **App Screen** | **Screen with Widget**| 
-  | ------------ | ----------------| 
-  | <img src="https://github.com/user-attachments/assets/ce02d318-dd57-4a58-aaff-5a5252e5089a" width="300"> | <img src="https://github.com/user-attachments/assets/bfc82082-817f-4b18-82a6-50c2ad8b1531" width="300" > |
+  | **App Screen** | **Recommended Apps** | **Screen with Widget**| 
+  | ------------ | ----------------|  ----------------| 
+  | <img src="https://github.com/user-attachments/assets/e333b36a-5456-4a09-a6ba-e8340984938a" width="300"> | <img src="https://github.com/user-attachments/assets/c7ac0995-c3d4-4a08-ad8c-22b748ce48f8" width="300"> | <img src="https://github.com/user-attachments/assets/1ebdcdcb-b922-466d-964f-e498501fa0a7" width="300" > |
 
 ## Contact
   Email: namanmawa123@gmail.com
