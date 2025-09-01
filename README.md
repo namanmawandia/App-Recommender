@@ -98,7 +98,8 @@ By combining a lightweight computational model with carefully optimized backgrou
   | <img src="https://github.com/user-attachments/assets/e333b36a-5456-4a09-a6ba-e8340984938a" width="300"> | <img src="https://github.com/user-attachments/assets/c7ac0995-c3d4-4a08-ad8c-22b748ce48f8" width="300"> | <img src="https://github.com/user-attachments/assets/1ebdcdcb-b922-466d-964f-e498501fa0a7" width="300" > |
 
 ## 🎥 Demo Video
-[▶ Watch Demo]<video src="https://github.com/user-attachments/assets/80fd6ca4-7d35-4fa6-af0a-44b16924feab" wodth="300">
+[[Watch the demo](https://img.shields.io/badge/▶️%20Watch%20Demo-blue?style=for-the-badge)](https://github.com/user-attachments/assets/80fd6ca4-7d35-4fa6-af0a-44b16924feab)
+
 
 ## Contact
   Email: namanmawa123@gmail.com
